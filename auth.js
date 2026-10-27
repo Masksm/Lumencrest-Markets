@@ -6,6 +6,7 @@
   const forgotLink = $("#forgot-password"), switchText = $("#auth-switch"), notice = $("#auth-notice");
   const googleButton = $("#google-button"), togglePassword = $("#toggle-password");
   let mode = "signup", busy = false;
+  const APP_URL = "https://lumencrest-markets.vercel.app";
   $("#year").textContent = String(new Date().getFullYear());
 
   const client = window.supabase?.createClient && window.LUMENCREST_SUPABASE
@@ -54,7 +55,7 @@
     if (!client) return showNotice("Authentication configuration is missing. Refresh later or contact support.", "error");
     setBusy(true); showNotice("Connecting to Google…");
     try {
-      const { error } = await client.auth.signInWithOAuth({ provider: "google", options: { redirectTo: location.origin + "/auth.html?auth=google" } });
+      const { error } = await client.auth.signInWithOAuth({ provider: "google", options: { redirectTo: APP_URL + "/auth.html?auth=google" } });
       if (error) throw error;
     } catch (e) { showNotice(errorText(e), "error"); setBusy(false); }
   });
@@ -73,7 +74,7 @@
     setBusy(true);
     try {
       if (mode === "signup") {
-        const { data, error } = await client.auth.signUp({ email, password, options: { data: { full_name: nameInput.value.trim() }, emailRedirectTo: location.origin + "/auth.html?auth=confirmed" } });
+        const { data, error } = await client.auth.signUp({ email, password, options: { data: { full_name: nameInput.value.trim() }, emailRedirectTo: APP_URL + "/auth.html?auth=confirmed" } });
         if (error) throw error;
         if (data.session) { window.location.replace("dashboard.html"); return; }
         showNotice("Account request received. Check your email to confirm your address.", "success");
@@ -92,7 +93,7 @@
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return setError(emailInput, "email-error", "Enter your email address first.");
     setBusy(true);
     try {
-      const { error } = await client.auth.resetPasswordForEmail(email, { redirectTo: location.origin + "/auth.html?auth=recovery" });
+      const { error } = await client.auth.resetPasswordForEmail(email, { redirectTo: APP_URL + "/auth.html?auth=recovery" });
       if (error) throw error;
       showNotice("If an account exists for this address, a password-reset email will be sent.", "success");
     } catch (e) { showNotice(errorText(e), "error"); } finally { setBusy(false); }
