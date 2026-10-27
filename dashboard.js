@@ -38,4 +38,29 @@
    $("#welcome-message").textContent = "Welcome, " + display + ". Your research workspace is ready.";
    $("#account-email").textContent = user.email || "Signed-in account"; $("#account-email").title = user.email || ""; $("#account-avatar").textContent = (display[0] || "L").toUpperCase();
  })();
+ // Keep navigation highlighting synchronized with the visible section.
+ const workspaceLinks = Array.from(document.querySelectorAll(".dashboard-links a"));
+ const workspaceSections = workspaceLinks.map(link => document.querySelector(link.getAttribute("href"))).filter(Boolean);
+ const markCurrentSection = id => {
+   workspaceLinks.forEach(link => {
+     const active = link.getAttribute("href") === "#" + id;
+     link.classList.toggle("active", active);
+     if (active) link.setAttribute("aria-current", "page"); else link.removeAttribute("aria-current");
+   });
+ };
+ workspaceLinks.forEach(link => link.addEventListener("click", () => markCurrentSection(link.getAttribute("href").slice(1))));
+ window.addEventListener("hashchange", () => {
+   const id = window.location.hash.slice(1);
+   if (workspaceLinks.some(link => link.getAttribute("href") === "#" + id)) markCurrentSection(id);
+ });
+ if ("IntersectionObserver" in window) {
+   const sectionObserver = new IntersectionObserver(entries => {
+     const visible = entries.filter(entry => entry.isIntersecting).sort((a,b) => b.intersectionRatio - a.intersectionRatio)[0];
+     if (visible) markCurrentSection(visible.target.id);
+   }, { rootMargin: "-18% 0px -62% 0px", threshold: [0, 0.1, 0.25] });
+   workspaceSections.forEach(section => sectionObserver.observe(section));
+ }
+ const initialSection = window.location.hash.slice(1);
+ markCurrentSection(workspaceLinks.some(link => link.getAttribute("href") === "#" + initialSection) ? initialSection : "overview");
+
 })();
