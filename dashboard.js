@@ -121,6 +121,50 @@
      updateSelectedQuote();
    }
  };
+ const loadForexRates = async () => {
+   const status = $("#forex-status"), rows = $("#forex-rate-rows");
+   if (!status || !rows) return;
+   try {
+     const quotes = "EUR,GBP,JPY,CAD,CHF,AUD";
+     const response = await fetch("https://api.frankfurter.dev/v2/rates?base=USD&quotes=" + quotes,{cache:"no-store"});
+     if (!response.ok) throw new Error("FX provider returned HTTP " + response.status);
+     const data = await response.json();
+     if (!Array.isArray(data) || !data.length) throw new Error("No FX rates returned");
+     rows.replaceChildren();
+     data.forEach(item => {
+       const tr = document.createElement("tr");
+       const pair = document.createElement("td"); pair.textContent = item.base + "/" + item.quote;
+       const rate = document.createElement("td"); rate.textContent = new Intl.NumberFormat(undefined,{maximumFractionDigits:6}).format(Number(item.rate));
+       const date = document.createElement("td"); date.textContent = item.date;
+       tr.append(pair,rate,date); rows.append(tr);
+     });
+     status.textContent = "Reference rates loaded · " + data[0].date;
+   } catch (error) {
+     rows.replaceChildren();
+     const tr = document.createElement("tr"), td = document.createElement("td");
+     td.colSpan = 3; td.textContent = "Reference rates are temporarily unavailable. Refresh to try again.";
+     tr.append(td); rows.append(tr); status.textContent = "Unavailable";
+   }
+ };
+ const loadStockWidget = () => {
+   const container = $("#tradingview-stock-overview");
+   if (!container || container.dataset.loaded === "true") return;
+   container.dataset.loaded = "true";
+   const script = document.createElement("script");
+   script.src = "https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js";
+   script.async = true;
+   script.textContent = JSON.stringify({
+     "symbols": [["Apple","NASDAQ:AAPL"],["Microsoft","NASDAQ:MSFT"],["NVIDIA","NASDAQ:NVDA"],["Amazon","NASDAQ:AMZN"],["S&P 500","SP:SPX"]],
+     "chartOnly": false, "width": "100%", "height": "420", "locale": "en", "colorTheme": "dark",
+     "autosize": true, "showVolume": false, "showMA": false, "hideDateRanges": false,
+     "hideMarketStatus": false, "hideSymbolLogo": false, "scalePosition": "right",
+     "scaleMode": "Normal", "fontFamily": "-apple-system, BlinkMacSystemFont, Trebuchet MS, Roboto, Ubuntu, sans-serif",
+     "fontSize": "10", "noTimeScale": false, "valuesTracking": "1", "changeMode": "price-and-percent",
+     "chartType": "area", "lineWidth": 2, "lineType": 0, "isTransparent": true,
+     "backgroundColor": "rgba(11, 18, 32, 0)"
+   });
+   container.append(script);
+ };
  const render = () => {
    const list = $("#watchlist-items"); list.replaceChildren(); $("#watchlist-empty").hidden = symbols.length > 0;
    symbols.forEach(symbol => {
@@ -193,6 +237,8 @@
  renderExplorer();
  updateSelectedQuote();
  loadCryptoPrices();
+ loadForexRates();
+ loadStockWidget();
  loadAssetHistory(assets.find(asset => asset.symbol === selectedAsset));
  window.setInterval(loadCryptoPrices, 60000);
  $("#signout-button").addEventListener("click",async () => {
