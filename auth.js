@@ -75,11 +75,12 @@
       if (mode === "signup") {
         const { data, error } = await client.auth.signUp({ email, password, options: { data: { full_name: nameInput.value.trim() }, emailRedirectTo: location.origin + "/auth.html?auth=confirmed" } });
         if (error) throw error;
-        showNotice(data.session ? "Account created and signed in." : "Account request received. Check your email to confirm your address.", "success");
+        if (data.session) { window.location.replace("dashboard.html"); return; }
+        showNotice("Account request received. Check your email to confirm your address.", "success");
       } else {
         const { error } = await client.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        showNotice("Signed in successfully. Your session is active in this browser.", "success");
+        window.location.replace("dashboard.html"); return;
       }
     } catch (e) { showNotice(errorText(e), "error"); } finally { setBusy(false); }
   });
@@ -105,6 +106,7 @@
     if (!client) return showNotice("Authentication configuration is missing. The forms are ready, but sign-in cannot run until the Supabase URL and publishable key are configured.", "error");
     const params = new URLSearchParams(location.search), { data, error } = await client.auth.getSession();
     if (error) return showNotice(errorText(error), "error");
+    if (data.session && params.get("auth") !== "recovery") { window.location.replace("dashboard.html"); return; }
     if (data.session) showNotice("You're signed in" + (data.session.user?.email ? " as " + data.session.user.email : "") + ".", "success");
     else if (params.get("auth") === "confirmed") { setMode("login"); showNotice("Email confirmed. Sign in with your email and password.", "success"); }
     else if (params.get("auth") === "recovery") showNotice("Password recovery link opened. Password update flow still needs to be completed.", "info");
