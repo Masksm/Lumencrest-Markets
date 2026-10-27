@@ -7,32 +7,100 @@
  let symbols = [];
  try { const saved = JSON.parse(localStorage.getItem("lumencrest-watchlist") || "[]"); symbols = Array.isArray(saved) ? saved.filter(v => typeof v === "string") : []; } catch {}
  const marketPrices = new Map();
+ const assets = [
+   {symbol:"BTC",pair:"BTCUSDT",name:"Bitcoin"}, {symbol:"ETH",pair:"ETHUSDT",name:"Ethereum"},
+   {symbol:"SOL",pair:"SOLUSDT",name:"Solana"}, {symbol:"BNB",pair:"BNBUSDT",name:"BNB"},
+   {symbol:"XRP",pair:"XRPUSDT",name:"XRP"}, {symbol:"ADA",pair:"ADAUSDT",name:"Cardano"},
+   {symbol:"DOGE",pair:"DOGEUSDT",name:"Dogecoin"}, {symbol:"TRX",pair:"TRXUSDT",name:"TRON"},
+   {symbol:"LINK",pair:"LINKUSDT",name:"Chainlink"}, {symbol:"AVAX",pair:"AVAXUSDT",name:"Avalanche"}
+ ];
+ let selectedAsset = "BTC";
  const money = value => new Intl.NumberFormat(undefined,{style:"currency",currency:"USD",maximumFractionDigits:value >= 100 ? 2 : value >= 1 ? 3 : 5}).format(value);
  const pct = value => (Number(value) > 0 ? "+" : "") + Number(value).toFixed(2) + "%";
  const renderCrypto = data => {
    const list = $("#crypto-price-list"), status = $("#crypto-status"), updated = $("#crypto-updated");
-   if (!list || !status || !updated) return;
    const names = {BTCUSDT:["Bitcoin","BTC"],ETHUSDT:["Ethereum","ETH"],SOLUSDT:["Solana","SOL"]};
-   list.replaceChildren();
+   if (list) {
+     list.replaceChildren();
+     data.filter(item => names[item.symbol]).forEach(item => {
+       const meta = names[item.symbol], row = document.createElement("div"); row.className = "crypto-price-row";
+       const label = document.createElement("span"); label.append(document.createTextNode(meta[0] + " "));
+       const ticker = document.createElement("small"); ticker.textContent = meta[1]; label.append(ticker);
+       const values = document.createElement("div"); values.className = "crypto-price-values";
+       const price = document.createElement("strong"); price.textContent = money(Number(item.lastPrice));
+       const change = document.createElement("small"); change.className = "crypto-change " + (Number(item.priceChangePercent) < 0 ? "negative" : "positive"); change.textContent = pct(item.priceChangePercent);
+       values.append(price,change); row.append(label,values); list.append(row);
+     });
+   }
    data.forEach(item => {
-     const meta = names[item.symbol]; if (!meta) return;
-     const row = document.createElement("div"); row.className = "crypto-price-row";
-     const label = document.createElement("span"); label.append(document.createTextNode(meta[0] + " "));
-     const ticker = document.createElement("small"); ticker.textContent = meta[1]; label.append(ticker);
-     const values = document.createElement("div"); values.className = "crypto-price-values";
-     const price = document.createElement("strong"); price.textContent = money(Number(item.lastPrice));
-     const change = document.createElement("small"); change.className = "crypto-change " + (Number(item.priceChangePercent) < 0 ? "negative" : "positive"); change.textContent = pct(item.priceChangePercent);
-     values.append(price,change); row.append(label,values); list.append(row);
-     marketPrices.set(meta[1], {price:Number(item.lastPrice), change:Number(item.priceChangePercent)});
+     const asset = assets.find(candidate => candidate.pair === item.symbol);
+     if (asset && Number.isFinite(Number(item.lastPrice))) marketPrices.set(asset.symbol,{price:Number(item.lastPrice),change:Number(item.priceChangePercent)});
    });
-   status.textContent = "Live · Binance";
-   updated.textContent = "Last checked " + new Intl.DateTimeFormat(undefined,{hour:"numeric",minute:"2-digit",second:"2-digit"}).format(new Date()) + " · 24h change";
+   if (status) status.textContent = "Live · Binance";
+   if (updated) updated.textContent = "Last checked " + new Intl.DateTimeFormat(undefined,{hour:"numeric",minute:"2-digit",second:"2-digit"}).format(new Date()) + " · 24h change";
+   renderExplorer();
    render();
+   updateSelectedQuote();
+ };
+ const renderExplorer = () => {
+   const container = $("#explorer-assets"); if (!container) return;
+   const query = ($("#asset-search")?.value || "").trim().toLowerCase();
+   const filtered = assets.filter(asset => (asset.name + " " + asset.symbol).toLowerCase().includes(query));
+   container.replaceChildren();
+   if (!filtered.length) { const empty = document.createElement("p"); empty.className = "explorer-message"; empty.textContent = "No matching asset in this starter list."; container.append(empty); return; }
+   filtered.forEach(asset => {
+     const quote = marketPrices.get(asset.symbol), button = document.createElement("button");
+     button.type = "button"; button.className = "explorer-asset" + (selectedAsset === asset.symbol ? " selected" : "");
+     button.setAttribute("aria-pressed",selectedAsset === asset.symbol ? "true" : "false");
+     const identity = document.createElement("span"); identity.className = "explorer-asset-identity";
+     const symbol = document.createElement("strong"); symbol.textContent = asset.symbol;
+     const name = document.createElement("small"); name.textContent = asset.name; identity.append(symbol,name);
+     const priceBox = document.createElement("span"); priceBox.className = "explorer-asset-quote";
+     const price = document.createElement("strong"); price.textContent = quote ? money(quote.price) : "—";
+     const change = document.createElement("small"); change.className = quote ? (quote.change < 0 ? "negative" : "positive") : ""; change.textContent = quote ? pct(quote.change) : "Quote unavailable";
+     priceBox.append(price,change); button.append(identity,priceBox);
+     button.addEventListener("click",() => { selectedAsset = asset.symbol; renderExplorer(); updateSelectedQuote(); loadAssetHistory(asset); });
+     container.append(button);
+   });
+ };
+ const updateSelectedQuote = () => {
+   const asset = assets.find(item => item.symbol === selectedAsset); if (!asset) return;
+   const quote = marketPrices.get(asset.symbol);
+   const name = $("#selected-asset-name"), price = $("#selected-asset-price"), change = $("#selected-asset-change");
+   if (name) { name.replaceChildren(document.createTextNode(asset.name + " ")); const ticker = document.createElement("span"); ticker.textContent = asset.symbol; name.append(ticker); }
+   if (price) price.textContent = quote ? money(quote.price) : "Quote unavailable";
+   if (change) { change.textContent = quote ? "24h " + pct(quote.change) : "Live quote not available"; change.className = "asset-current-change " + (quote ? (quote.change < 0 ? "negative" : "positive") : ""); }
+ };
+ const loadAssetHistory = async asset => {
+   const status = $("#history-status"), chart = $("#asset-chart");
+   if (!status || !chart) return;
+   status.textContent = "Loading history…"; chart.replaceChildren();
+   try {
+     const response = await fetch("https://data-api.binance.vision/api/v3/klines?symbol=" + encodeURIComponent(asset.pair) + "&interval=4h&limit=42",{cache:"no-store"});
+     if (!response.ok) throw new Error("Historical market data returned HTTP " + response.status);
+     const candles = await response.json();
+     const points = Array.isArray(candles) ? candles.map(c => ({time:Number(c[0]),price:Number(c[4])})).filter(p => Number.isFinite(p.time) && Number.isFinite(p.price)) : [];
+     if (points.length < 2) throw new Error("Not enough historical data");
+     const width = 640, height = 220, pad = 12, values = points.map(p => p.price);
+     let min = Math.min(...values), max = Math.max(...values); if (min === max) { min *= .999; max *= 1.001; }
+     const coords = points.map((p,i) => ({x:pad + i*(width-pad*2)/(points.length-1),y:pad+(max-p.price)*(height-pad*2)/(max-min)}));
+     const svg = document.createElementNS("http://www.w3.org/2000/svg","svg");
+     svg.setAttribute("viewBox","0 0 "+width+" "+height); svg.setAttribute("preserveAspectRatio","none"); svg.setAttribute("class","history-svg"); svg.setAttribute("aria-label",asset.name+" seven-day closing prices");
+     [0.25,0.5,0.75].forEach(ratio => { const line = document.createElementNS(svg.namespaceURI,"line"); const y = pad+(height-pad*2)*ratio; line.setAttribute("x1",pad);line.setAttribute("x2",width-pad);line.setAttribute("y1",y);line.setAttribute("y2",y);line.setAttribute("class","chart-grid-line");svg.append(line); });
+     const polyline = document.createElementNS(svg.namespaceURI,"polyline"); polyline.setAttribute("points",coords.map(p=>p.x.toFixed(2)+","+p.y.toFixed(2)).join(" ")); polyline.setAttribute("class","history-line"); svg.append(polyline);
+     const dot = document.createElementNS(svg.namespaceURI,"circle"); const last = coords[coords.length-1]; dot.setAttribute("cx",last.x);dot.setAttribute("cy",last.y);dot.setAttribute("r","4");dot.setAttribute("class","history-dot");svg.append(dot);
+     chart.append(svg);
+     const range = document.createElement("small"); range.className = "chart-range-note"; range.textContent = "Range: " + money(min) + " to " + money(max) + " · " + points.length + " candles"; chart.append(range);
+     status.textContent = "History loaded";
+   } catch (error) {
+     const message = document.createElement("p"); message.className = "explorer-message"; message.textContent = "Historical chart unavailable for this asset right now. Try again shortly."; chart.append(message); status.textContent = "Unavailable";
+   }
  };
  const loadCryptoPrices = async () => {
    const status = $("#crypto-status"), updated = $("#crypto-updated");
    try {
-     const response = await fetch("https://data-api.binance.vision/api/v3/ticker/24hr?symbols=%5B%22BTCUSDT%22%2C%22ETHUSDT%22%2C%22SOLUSDT%22%5D",{cache:"no-store"});
+     const pairs = assets.map(asset => asset.pair);
+     const response = await fetch("https://data-api.binance.vision/api/v3/ticker/24hr?symbols=" + encodeURIComponent(JSON.stringify(pairs)),{cache:"no-store"});
      if (!response.ok) throw new Error("Market provider returned HTTP " + response.status);
      const data = await response.json();
      if (!Array.isArray(data) || !data.some(item => item.symbol === "BTCUSDT" && Number.isFinite(Number(item.lastPrice)))) throw new Error("Market data response was not valid");
@@ -40,6 +108,8 @@
    } catch (error) {
      if (status) status.textContent = marketPrices.size ? "Showing last available data" : "Temporarily unavailable";
      if (updated) updated.textContent = marketPrices.size ? "Refresh failed. Values may be stale; retrying shortly." : "Could not load prices. Check connection and refresh the page.";
+     renderExplorer();
+     updateSelectedQuote();
    }
  };
  const render = () => {
@@ -62,7 +132,11 @@
    symbols.push(symbol); input.value = ""; save();
  });
  render();
+ $("#asset-search")?.addEventListener("input",renderExplorer);
+ renderExplorer();
+ updateSelectedQuote();
  loadCryptoPrices();
+ loadAssetHistory(assets.find(asset => asset.symbol === selectedAsset));
  window.setInterval(loadCryptoPrices, 60000);
  $("#signout-button").addEventListener("click",async () => {
    const button = $("#signout-button"); button.disabled = true; button.textContent = "Signing out…";
