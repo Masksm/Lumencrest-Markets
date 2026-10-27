@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#0b1220">
+  <meta name="description" content="Review market quotes, historical context and data sources for a selected Lumencrest Markets asset.">
+  <title>Asset details | Lumencrest Markets</title>
+  <link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="dashboard.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>window.LUMENCREST_SUPABASE={url:"https://ilohresmkkzwrruhybfa.supabase.co",key:"sb_publishable_lQr8QUT1M8sjRWtAB8q4og_JkyiUyf5"};</script>
+  <script src="asset.js" defer></script>
+</head>
+<body class="dashboard-page">
+<header class="site-header"><div class="container dashboard-nav">
+  <a class="brand" href="index.html" aria-label="Lumencrest Markets home"><span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span><span class="brand-name">lumencrest<span> markets</span></span></a>
+  <nav class="dashboard-links" aria-label="Workspace navigation"><a href="dashboard.html">Overview</a><a class="active" aria-current="page" href="markets.html">Markets</a><a href="watchlist.html">Watchlist</a><a href="research.html">Research</a></nav>
+  <div class="account-controls"><button class="signout-button" id="signout-button" type="button">Sign out</button></div>
+</div></header>
+<main class="container workspace-main">
+  <p><a class="workspace-link" href="markets.html">← Back to markets</a></p>
+  <section class="workspace-welcome"><div><div class="eyebrow"><span class="eyebrow-dot"></span> ASSET RESEARCH</div><h1 id="asset-title">Loading <span>asset details.</span></h1><p id="asset-subtitle">Checking available market data and its source.</p></div></section>
+  <section class="workspace-notice"><span class="status-icon">i</span><div><strong>Know what this quote represents</strong><p id="asset-disclaimer">Crypto quotes are Binance spot-market data and may differ from other venues. Historical data is informational only. This page does not execute trades.</p></div></section>
+  <section class="workspace-lower-grid asset-detail-page-grid">
+    <article class="workspace-panel">
+      <div class="eyebrow">LATEST AVAILABLE QUOTE</div><div id="asset-price" class="asset-current-price">—</div><div id="asset-change" class="asset-current-change">Waiting for quote…</div>
+      <p id="asset-quote-status" class="data-status" role="status">Connecting to market data…</p>
+      <button class="outline-button asset-watchlist-button" id="asset-watchlist-button" type="button" disabled>Add to watchlist</button>
+      <p id="asset-watchlist-status" class="data-status" role="status"></p>
+    </article>
+    <article class="workspace-panel">
+      <div class="chart-heading"><strong>7-day price history</strong><small>4-hour candles · closing price</small></div>
+      <div id="asset-chart" class="asset-chart" role="img" aria-label="Seven-day historical price chart"><p class="explorer-message">Loading historical prices…</p></div>
+      <div class="chart-axis"><span>Oldest</span><span>Latest</span></div>
+      <p id="asset-history-status" class="data-status" role="status">Loading history…</p>
+      <p class="chart-disclaimer">Historical prices do not predict future performance.</p>
+    </article>
+  </section>
+  <section class="workspace-panel"><div class="eyebrow">DATA NOTES</div><h2>Source and limitations</h2><p class="panel-intro" id="asset-source-note">The available quote and history depend on the supported data source for this asset.</p><p class="panel-intro">Lumencrest Markets is currently a research and discovery project, not a broker. Prices shown here are not executable order prices, and no trades or transfers are performed.</p></section>
+  <footer class="workspace-footer"><span>© <span id="year"></span> Lumencrest Markets</span><span>Research workspace only. Not a live brokerage or investment advice.</span></footer>
+</main>
+</body></html>
