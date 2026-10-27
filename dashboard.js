@@ -72,6 +72,13 @@
    if (name) { name.replaceChildren(document.createTextNode(asset.name + " ")); const ticker = document.createElement("span"); ticker.textContent = asset.symbol; name.append(ticker); }
    if (price) price.textContent = quote ? money(quote.price) : "Quote unavailable";
    if (change) { change.textContent = quote ? "24h " + pct(quote.change) : "Live quote not available"; change.className = "asset-current-change " + (quote ? (quote.change < 0 ? "negative" : "positive") : ""); }
+   const addButton = $("#add-selected-asset");
+   if (addButton) {
+     const alreadySaved = symbols.includes(asset.symbol);
+     addButton.textContent = alreadySaved ? "Added to watchlist" : "＋ Add " + asset.symbol + " to watchlist";
+     addButton.disabled = alreadySaved || !cloudWatchlistReady;
+     addButton.setAttribute("aria-label", alreadySaved ? asset.name + " is already on your watchlist" : "Add " + asset.name + " to your watchlist");
+   }
  };
  const loadAssetHistory = async asset => {
    const status = $("#history-status"), chart = $("#asset-chart");
@@ -157,24 +164,32 @@
    if (!cloudWatchlistReady || !cloudUserId) { message.textContent = "Secure watchlist sync is still loading. Try again shortly."; return; }
    const {error} = await client.from("user_watchlists").insert({user_id:cloudUserId,symbol});
    if (error) { message.textContent = error.code === "23505" ? "That symbol is already on your list." : "Could not save this symbol. Try again."; return; }
-   symbols.push(symbol); saveLocal(); message.textContent = "Saved to your account."; render();
+   symbols.push(symbol); saveLocal(); message.textContent = "Saved to your account."; render(); updateSelectedQuote();
  };
  const removeSymbol = async symbol => {
    const message = $("#watchlist-error");
    if (!cloudWatchlistReady || !cloudUserId) { message.textContent = "Secure watchlist sync is still loading. Try again shortly."; return; }
    const {error} = await client.from("user_watchlists").delete().eq("user_id",cloudUserId).eq("symbol",symbol);
    if (error) { message.textContent = "Could not remove this symbol. Try again."; return; }
-   symbols = symbols.filter(value => value !== symbol); saveLocal(); message.textContent = "Removed from your account."; render();
+   symbols = symbols.filter(value => value !== symbol); saveLocal(); message.textContent = "Removed from your account."; render(); updateSelectedQuote();
  };
  $("#add-watchlist-button").addEventListener("click",() => { const form = $("#watchlist-form"); form.hidden = !form.hidden; if (!form.hidden) $("#watchlist-symbol").focus(); });
  $("#watchlist-form").addEventListener("submit",async event => {
    event.preventDefault(); const input = $("#watchlist-symbol"), symbol = input.value.trim().replace(/\s+/g," ").toUpperCase(); $("#watchlist-error").textContent = "";
    if (!symbol) return;
+   const alreadySaved = symbols.includes(symbol);
    await addSymbol(symbol);
-   if (symbols.includes(symbol)) input.value = "";
+   if (!alreadySaved && symbols.includes(symbol)) input.value = "";
  });
  render();
  $("#asset-search")?.addEventListener("input",renderExplorer);
+ $("#add-selected-asset")?.addEventListener("click", async () => {
+   const asset = assets.find(item => item.symbol === selectedAsset);
+   if (!asset) return;
+   const button = $("#add-selected-asset"); button.disabled = true;
+   await addSymbol(asset.symbol);
+   updateSelectedQuote();
+ });
  renderExplorer();
  updateSelectedQuote();
  loadCryptoPrices();
