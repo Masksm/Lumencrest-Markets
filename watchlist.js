@@ -15,9 +15,11 @@
     items.forEach(symbol => {
       const row = document.createElement("div");
       row.className = "watchlist-item";
-      const label = document.createElement("strong");
+      const label = document.createElement("a");
       label.className = "watchlist-symbol";
+      label.href = "asset.html?symbol=" + encodeURIComponent(symbol);
       label.textContent = symbol;
+      label.setAttribute("aria-label", "Open details for " + symbol);
       const remove = document.createElement("button");
       remove.type = "button";
       remove.className = "remove-symbol";
