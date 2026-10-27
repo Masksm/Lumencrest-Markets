@@ -56,3 +56,8 @@
 .chart-disclaimer{font-size:9px;color:var(--muted);line-height:1.6;margin:15px 0 0}
 #asset-explorer{scroll-margin-top:100px}
 @media(max-width:760px){.explorer-layout{grid-template-columns:1fr}.explorer-assets{grid-template-columns:1fr}.asset-detail-panel{padding-top:20px}.history-svg{height:170px}}
+
+
+/* Selected market shortcut to the account watchlist */
+.asset-watchlist-button { margin-top: 14px; }
+.asset-watchlist-button:disabled { opacity: .65; cursor: not-allowed; }
