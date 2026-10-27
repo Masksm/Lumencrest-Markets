@@ -13,7 +13,7 @@
   ].map(([symbol,chartSymbol,name]) => ({symbol,chartSymbol,name,type:"stock"}));
   const currencies = ["USD","EUR","GBP","JPY","CAD","CHF","AUD"];
   const params = new URLSearchParams(location.search);
-  const requested = (params.get("symbol") || "BTC").trim().toUpperCase().replace(/\\s+/g,"");
+  const requested = (params.get("symbol") || "BTC").trim().toUpperCase().replace(/\s+/g,"");
   const crypto = cryptoAssets.find(item => item.symbol === requested);
   const stock = stockAssets.find(item => item.symbol === requested);
   const pairParts = requested.includes("/") ? requested.split("/") : [];
