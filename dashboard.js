@@ -5,6 +5,8 @@
  $("#year").textContent = String(new Date().getFullYear());
  $("#today-date").textContent = new Intl.DateTimeFormat(undefined,{weekday:"short",year:"numeric",month:"short",day:"numeric"}).format(new Date());
  let symbols = [];
+ let cloudUserId = null;
+ let cloudWatchlistReady = false;
  try { const saved = JSON.parse(localStorage.getItem("lumencrest-watchlist") || "[]"); symbols = Array.isArray(saved) ? saved.filter(v => typeof v === "string") : []; } catch {}
  const marketPrices = new Map();
  const assets = [
@@ -119,17 +121,57 @@
      const details = document.createElement("div"), name = document.createElement("strong"), note = document.createElement("small");
      name.className = "watchlist-symbol"; name.textContent = symbol; note.className = "watchlist-item-note"; const quote = marketPrices.get(symbol.replace(/[^A-Z0-9]/g,"")); note.textContent = quote ? money(quote.price) + " · 24h " + pct(quote.change) : "No matching live quote"; details.append(name,note);
      const remove = document.createElement("button"); remove.className = "remove-symbol"; remove.type = "button"; remove.textContent = "×"; remove.setAttribute("aria-label","Remove " + symbol + " from watchlist");
-     remove.addEventListener("click",() => { symbols = symbols.filter(v => v !== symbol); save(); }); item.append(details,remove); list.append(item);
+     remove.addEventListener("click",() => { remove.disabled = true; removeSymbol(symbol).finally(() => { remove.disabled = false; }); }); item.append(details,remove);
    });
  };
- const save = () => { try { localStorage.setItem("lumencrest-watchlist",JSON.stringify(symbols)); $("#watchlist-error").textContent = ""; render(); } catch { $("#watchlist-error").textContent = "This browser could not save your list."; } };
+ const saveLocal = () => { try { localStorage.setItem("lumencrest-watchlist",JSON.stringify(symbols)); } catch {} };
+ const loadCloudWatchlist = async userId => {
+   const message = $("#watchlist-error");
+   cloudUserId = userId;
+   try {
+     const {data,error} = await client.from("user_watchlists").select("symbol").eq("user_id",userId).order("created_at",{ascending:true});
+     if (error) throw error;
+     const remote = (data || []).map(row => row.symbol).filter(symbol => typeof symbol === "string");
+     if (remote.length === 0 && symbols.length > 0) {
+       const rows = [...new Set(symbols)].slice(0,30).map(symbol => ({user_id:userId,symbol}));
+       const {error:insertError} = await client.from("user_watchlists").insert(rows);
+       if (insertError) throw insertError;
+       symbols = rows.map(row => row.symbol);
+     } else {
+       symbols = remote.slice(0,30);
+     }
+     cloudWatchlistReady = true;
+     saveLocal();
+     message.textContent = "Watchlist synced to your account.";
+     render();
+   } catch (error) {
+     cloudWatchlistReady = false;
+     message.textContent = "Cloud sync is temporarily unavailable. Your saved browser list is still here.";
+     render();
+   }
+ };
+ const addSymbol = async symbol => {
+   const message = $("#watchlist-error");
+   if (symbols.includes(symbol)) { message.textContent = "That symbol is already on your list."; return; }
+   if (symbols.length >= 30) { message.textContent = "Your watchlist is limited to 30 items for now."; return; }
+   if (!cloudWatchlistReady || !cloudUserId) { message.textContent = "Secure watchlist sync is still loading. Try again shortly."; return; }
+   const {error} = await client.from("user_watchlists").insert({user_id:cloudUserId,symbol});
+   if (error) { message.textContent = error.code === "23505" ? "That symbol is already on your list." : "Could not save this symbol. Try again."; return; }
+   symbols.push(symbol); saveLocal(); message.textContent = "Saved to your account."; render();
+ };
+ const removeSymbol = async symbol => {
+   const message = $("#watchlist-error");
+   if (!cloudWatchlistReady || !cloudUserId) { message.textContent = "Secure watchlist sync is still loading. Try again shortly."; return; }
+   const {error} = await client.from("user_watchlists").delete().eq("user_id",cloudUserId).eq("symbol",symbol);
+   if (error) { message.textContent = "Could not remove this symbol. Try again."; return; }
+   symbols = symbols.filter(value => value !== symbol); saveLocal(); message.textContent = "Removed from your account."; render();
+ };
  $("#add-watchlist-button").addEventListener("click",() => { const form = $("#watchlist-form"); form.hidden = !form.hidden; if (!form.hidden) $("#watchlist-symbol").focus(); });
- $("#watchlist-form").addEventListener("submit",event => {
+ $("#watchlist-form").addEventListener("submit",async event => {
    event.preventDefault(); const input = $("#watchlist-symbol"), symbol = input.value.trim().replace(/\s+/g," ").toUpperCase(); $("#watchlist-error").textContent = "";
    if (!symbol) return;
-   if (symbols.includes(symbol)) { $("#watchlist-error").textContent = "That symbol is already on your list."; return; }
-   if (symbols.length >= 30) { $("#watchlist-error").textContent = "Your browser watchlist is limited to 30 items for now."; return; }
-   symbols.push(symbol); input.value = ""; save();
+   await addSymbol(symbol);
+   if (symbols.includes(symbol)) input.value = "";
  });
  render();
  $("#asset-search")?.addEventListener("input",renderExplorer);
@@ -149,6 +191,7 @@
    const user = data.session.user, full = user.user_metadata?.full_name || user.user_metadata?.name || "", display = full.trim() || (user.email ? user.email.split("@")[0] : "there");
    $("#welcome-message").textContent = "Welcome, " + display + ". Your research workspace is ready.";
    $("#account-email").textContent = user.email || "Signed-in account"; $("#account-email").title = user.email || ""; $("#account-avatar").textContent = (display[0] || "L").toUpperCase();
+   await loadCloudWatchlist(user.id);
  })();
  // Keep navigation highlighting synchronized with the visible section.
  const workspaceLinks = Array.from(document.querySelectorAll(".dashboard-links a"));
