@@ -9,3 +9,16 @@
 .dashboard-links a[aria-current="page"] { color: var(--text); border-bottom-color: var(--accent); }
 #overview, #markets, #watchlist, #research { scroll-margin-top: 96px; }
 @media (max-width: 700px) { #overview, #markets, #watchlist, #research { scroll-margin-top: 140px; } }
+
+/* Live crypto quote rows */
+.crypto-price-list{display:grid;gap:0;margin:15px 0 13px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.crypto-price-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.crypto-price-row:last-child{border-bottom:0}
+.crypto-price-row>span{font-size:10px;font-weight:700}
+.crypto-price-row>span small{display:inline-block;color:var(--muted);font-size:9px;font-weight:500;margin-left:4px}
+.crypto-price-values{text-align:right;min-width:0}
+.crypto-price-values strong,.crypto-price-values small{display:block}
+.crypto-price-values strong{font-size:12px;font-variant-numeric:tabular-nums}
+.crypto-price-values small{font-size:9px;margin-top:3px}
+.crypto-change.positive{color:#58c99b}.crypto-change.negative{color:#f08b8b}
+.market-data-timestamp{display:block;margin-top:7px;color:var(--muted);font-size:9px}
