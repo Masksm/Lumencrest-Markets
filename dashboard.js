@@ -6,12 +6,48 @@
  $("#today-date").textContent = new Intl.DateTimeFormat(undefined,{weekday:"short",year:"numeric",month:"short",day:"numeric"}).format(new Date());
  let symbols = [];
  try { const saved = JSON.parse(localStorage.getItem("lumencrest-watchlist") || "[]"); symbols = Array.isArray(saved) ? saved.filter(v => typeof v === "string") : []; } catch {}
+ const marketPrices = new Map();
+ const money = value => new Intl.NumberFormat(undefined,{style:"currency",currency:"USD",maximumFractionDigits:value >= 100 ? 2 : value >= 1 ? 3 : 5}).format(value);
+ const pct = value => (Number(value) > 0 ? "+" : "") + Number(value).toFixed(2) + "%";
+ const renderCrypto = data => {
+   const list = $("#crypto-price-list"), status = $("#crypto-status"), updated = $("#crypto-updated");
+   if (!list || !status || !updated) return;
+   const names = {BTCUSDT:["Bitcoin","BTC"],ETHUSDT:["Ethereum","ETH"],SOLUSDT:["Solana","SOL"]};
+   list.replaceChildren();
+   data.forEach(item => {
+     const meta = names[item.symbol]; if (!meta) return;
+     const row = document.createElement("div"); row.className = "crypto-price-row";
+     const label = document.createElement("span"); label.append(document.createTextNode(meta[0] + " "));
+     const ticker = document.createElement("small"); ticker.textContent = meta[1]; label.append(ticker);
+     const values = document.createElement("div"); values.className = "crypto-price-values";
+     const price = document.createElement("strong"); price.textContent = money(Number(item.lastPrice));
+     const change = document.createElement("small"); change.className = "crypto-change " + (Number(item.priceChangePercent) < 0 ? "negative" : "positive"); change.textContent = pct(item.priceChangePercent);
+     values.append(price,change); row.append(label,values); list.append(row);
+     marketPrices.set(meta[1], {price:Number(item.lastPrice), change:Number(item.priceChangePercent)});
+   });
+   status.textContent = "Live · Binance";
+   updated.textContent = "Last checked " + new Intl.DateTimeFormat(undefined,{hour:"numeric",minute:"2-digit",second:"2-digit"}).format(new Date()) + " · 24h change";
+   render();
+ };
+ const loadCryptoPrices = async () => {
+   const status = $("#crypto-status"), updated = $("#crypto-updated");
+   try {
+     const response = await fetch("https://data-api.binance.vision/api/v3/ticker/24hr?symbols=%5B%22BTCUSDT%22%2C%22ETHUSDT%22%2C%22SOLUSDT%22%5D",{cache:"no-store"});
+     if (!response.ok) throw new Error("Market provider returned HTTP " + response.status);
+     const data = await response.json();
+     if (!Array.isArray(data) || !data.some(item => item.symbol === "BTCUSDT" && Number.isFinite(Number(item.lastPrice)))) throw new Error("Market data response was not valid");
+     renderCrypto(data);
+   } catch (error) {
+     if (status) status.textContent = marketPrices.size ? "Showing last available data" : "Temporarily unavailable";
+     if (updated) updated.textContent = marketPrices.size ? "Refresh failed. Values may be stale; retrying shortly." : "Could not load prices. Check connection and refresh the page.";
+   }
+ };
  const render = () => {
    const list = $("#watchlist-items"); list.replaceChildren(); $("#watchlist-empty").hidden = symbols.length > 0;
    symbols.forEach(symbol => {
      const item = document.createElement("div"); item.className = "watchlist-item";
      const details = document.createElement("div"), name = document.createElement("strong"), note = document.createElement("small");
-     name.className = "watchlist-symbol"; name.textContent = symbol; note.className = "watchlist-item-note"; note.textContent = "Price data not connected"; details.append(name,note);
+     name.className = "watchlist-symbol"; name.textContent = symbol; note.className = "watchlist-item-note"; const quote = marketPrices.get(symbol.replace(/[^A-Z0-9]/g,"")); note.textContent = quote ? money(quote.price) + " · 24h " + pct(quote.change) : "No matching live quote"; details.append(name,note);
      const remove = document.createElement("button"); remove.className = "remove-symbol"; remove.type = "button"; remove.textContent = "×"; remove.setAttribute("aria-label","Remove " + symbol + " from watchlist");
      remove.addEventListener("click",() => { symbols = symbols.filter(v => v !== symbol); save(); }); item.append(details,remove); list.append(item);
    });
@@ -26,6 +62,8 @@
    symbols.push(symbol); input.value = ""; save();
  });
  render();
+ loadCryptoPrices();
+ window.setInterval(loadCryptoPrices, 60000);
  $("#signout-button").addEventListener("click",async () => {
    const button = $("#signout-button"); button.disabled = true; button.textContent = "Signing out…";
    if (client) { const {error} = await client.auth.signOut(); if (error) { button.disabled = false; button.textContent = "Sign out"; window.alert("Could not sign out: " + error.message); return; } }
