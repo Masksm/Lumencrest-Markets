@@ -124,10 +124,14 @@
     if (!client) return showNotice("Authentication configuration is missing. The forms are ready, but sign-in cannot run until the Supabase URL and publishable key are configured.", "error");
     const params = new URLSearchParams(location.search), { data, error } = await client.auth.getSession();
     if (error) return showNotice(errorText(error), "error");
-    if (data.session && params.get("auth") !== "recovery") { window.location.replace("dashboard.html"); return; }
-    if (data.session) showNotice("You're signed in" + (data.session.user?.email ? " as " + data.session.user.email : "") + ".", "success");
-    else if (params.get("auth") === "confirmed") { setMode("login"); showNotice("Email confirmed. Sign in with your email and password.", "success"); }
-    else if (params.get("auth") === "recovery") { setMode("recovery"); showNotice("Password recovery link opened. Choose a new password below.", "info"); }
+    if (params.get("auth") === "recovery") {
+      setMode("recovery");
+      if (data.session) showNotice("Choose a new password below.", "info");
+      else showNotice("The reset link could not establish a session. Open the newest reset email and use its link again.", "error");
+      return;
+    }
+    if (data.session) { window.location.replace("dashboard.html"); return; }
+    if (params.get("auth") === "confirmed") { setMode("login"); showNotice("Email confirmed. Sign in with your email and password.", "success"); }
     else if (params.get("error_description")) showNotice(params.get("error_description").replace(/\+/g, " "), "error");
   })();
 })();
