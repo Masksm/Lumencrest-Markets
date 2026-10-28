@@ -109,21 +109,33 @@
       $("#asset-quote-status").textContent="Quote checked "+new Date().toLocaleTimeString()+" · Binance spot market";
     }catch{$("#asset-quote-status").textContent="Quote temporarily unavailable. Refresh to retry.";}
   }
+  let chartInterval = "4h";
+  const intervalLabels = {"15m":"15-minute candles","1h":"1-hour candles","4h":"4-hour candles","1d":"daily candles"};
   async function loadCryptoHistory(){
     const chart=$("#asset-chart");
     try{
-      const response=await fetch("https://data-api.binance.vision/api/v3/klines?symbol="+encodeURIComponent(asset.pair)+"&interval=4h&limit=42",{cache:"no-store"});
+      const limits={"15m":96,"1h":72,"4h":42,"1d":60};
+      const response=await fetch("https://data-api.binance.vision/api/v3/klines?symbol="+encodeURIComponent(asset.pair)+"&interval="+encodeURIComponent(chartInterval)+"&limit="+limits[chartInterval],{cache:"no-store"});
       if(!response.ok)throw new Error();
-      const data=await response.json(),points=data.map(row=>Number(row[4])).filter(Number.isFinite);
-      if(points.length<2)throw new Error();
-      let min=Math.min(...points),max=Math.max(...points);if(min===max){min*=.999;max*=1.001;}
-      const w=640,h=220,p=12,coords=points.map((v,i)=>({x:p+i*(w-p*2)/(points.length-1),y:p+(max-v)*(h-p*2)/(max-min)}));
-      const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");svg.setAttribute("viewBox","0 0 "+w+" "+h);svg.setAttribute("preserveAspectRatio","none");svg.setAttribute("class","history-svg");
-      [.25,.5,.75].forEach(r=>{const line=document.createElementNS(svg.namespaceURI,"line"),y=p+(h-p*2)*r;line.setAttribute("x1",p);line.setAttribute("x2",w-p);line.setAttribute("y1",y);line.setAttribute("y2",y);line.setAttribute("class","chart-grid-line");svg.append(line);});
-      const line=document.createElementNS(svg.namespaceURI,"polyline");line.setAttribute("points",coords.map(point=>point.x+","+point.y).join(" "));line.setAttribute("class","history-line");svg.append(line);
-      const last=coords[coords.length-1],dot=document.createElementNS(svg.namespaceURI,"circle");dot.setAttribute("cx",last.x);dot.setAttribute("cy",last.y);dot.setAttribute("r",4);dot.setAttribute("class","history-dot");svg.append(dot);
-      chart.replaceChildren(svg);const note=document.createElement("small");note.className="chart-range-note";note.textContent="Observed range: "+money(min)+" to "+money(max)+" · "+points.length+" candles";chart.append(note);
-      $("#asset-history-status").textContent="History loaded · Binance four-hour candles.";
+      const data=await response.json();
+      const candles=data.map(row=>({time:Number(row[0]),open:Number(row[1]),high:Number(row[2]),low:Number(row[3]),close:Number(row[4])})).filter(c=>[c.open,c.high,c.low,c.close].every(Number.isFinite));
+      if(candles.length<2)throw new Error();
+      const all=candles.flatMap(c=>[c.high,c.low]);let min=Math.min(...all),max=Math.max(...all);if(min===max){min*=.999;max*=1.001;}
+      const w=900,h=390,p=18,innerW=w-p*2,innerH=h-p*2;
+      const y=v=>p+(max-v)*innerH/(max-min);
+      const slot=innerW/candles.length,candleW=Math.max(2,Math.min(10,slot*.58));
+      const ns="http://www.w3.org/2000/svg",svg=document.createElementNS(ns,"svg");svg.setAttribute("viewBox","0 0 "+w+" "+h);svg.setAttribute("preserveAspectRatio","none");svg.setAttribute("class","history-svg asset-candle-svg");svg.setAttribute("role","img");svg.setAttribute("aria-label",asset.name+" "+intervalLabels[chartInterval]);
+      for(let i=0;i<5;i++){const yy=p+i*innerH/4,line=document.createElementNS(ns,"line");line.setAttribute("x1",p);line.setAttribute("x2",w-p);line.setAttribute("y1",yy);line.setAttribute("y2",yy);line.setAttribute("class","chart-grid-line");svg.append(line);}
+      candles.forEach((c,i)=>{
+        const x=p+(i+.5)*slot,color=c.close>=c.open?"candle-up":"candle-down";
+        const wick=document.createElementNS(ns,"line");wick.setAttribute("x1",x);wick.setAttribute("x2",x);wick.setAttribute("y1",y(c.high));wick.setAttribute("y2",y(c.low));wick.setAttribute("class",color);wick.setAttribute("stroke-width",Math.max(1,Math.min(2,slot*.15)));svg.append(wick);
+        const rect=document.createElementNS(ns,"rect");rect.setAttribute("x",x-candleW/2);rect.setAttribute("y",Math.min(y(c.open),y(c.close)));rect.setAttribute("width",candleW);rect.setAttribute("height",Math.max(1.5,Math.abs(y(c.open)-y(c.close))));rect.setAttribute("class",color);svg.append(rect);
+      });
+      chart.replaceChildren(svg);
+      $("#asset-chart-range").textContent=new Date(candles[0].time).toLocaleDateString()+" – "+new Date(candles[candles.length-1].time).toLocaleDateString()+" · "+candles.length+" candles";
+      $("#asset-history-status").textContent="Binance spot · "+intervalLabels[chartInterval];
+      const last=candles[candles.length-1];
+      const marker=document.createElement("div");marker.className="asset-chart-current";marker.textContent=money(last.close);chart.append(marker);
     }catch{chart.textContent="Historical chart temporarily unavailable.";$("#asset-history-status").textContent="History unavailable. Refresh to retry.";}
   }
   async function loadForexQuote(){
@@ -169,6 +181,12 @@
     if(error){$("#asset-watchlist-status").textContent=error.code==="23505"?"This asset is already saved.":"Could not save this asset. Try again.";button.disabled=false;return;}
     saved=true;button.textContent="Added to watchlist";$("#asset-watchlist-status").textContent="Saved to your account watchlist.";
   });
+  document.querySelectorAll("[data-interval]").forEach(button=>button.addEventListener("click",()=>{
+    if(!asset||asset.type!=="crypto")return;
+    chartInterval=button.dataset.interval;
+    document.querySelectorAll("[data-interval]").forEach(item=>{item.classList.toggle("active",item===button);item.setAttribute("aria-pressed",String(item===button));});
+    loadCryptoHistory();
+  }));
   setUpPage();
   if(client)client.auth.getSession().then(({data,error})=>{if(error||!data.session)login();});
   if(asset){
