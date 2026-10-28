@@ -110,7 +110,7 @@
     if (data.session && params.get("auth") !== "recovery") { window.location.replace("dashboard.html"); return; }
     if (data.session) showNotice("You're signed in" + (data.session.user?.email ? " as " + data.session.user.email : "") + ".", "success");
     else if (params.get("auth") === "confirmed") { setMode("login"); showNotice("Email confirmed. Sign in with your email and password.", "success"); }
-    else if (params.get("auth") === "recovery") showNotice("Password recovery link opened. Password update flow still needs to be completed.", "info");
+    else if (params.get("auth") === "recovery") { setMode("recovery"); showNotice("Password recovery link opened. Choose a new password below.", "info"); }
     else if (params.get("error_description")) showNotice(params.get("error_description").replace(/\+/g, " "), "error");
   })();
 })();
