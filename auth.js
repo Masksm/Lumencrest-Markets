@@ -68,6 +68,20 @@
     clearErrors(); clearNotice();
     const email = emailInput.value.trim(), password = passwordInput.value;
     let valid = true;
+    if (mode === "recovery") {
+      if (password.length < 8) { setError(passwordInput, "password-error", "Use a password with at least 8 characters."); return showNotice("Choose a password with at least 8 characters.", "error"); }
+      if (!client) return showNotice("Authentication configuration is missing. Refresh later or contact support.", "error");
+      setBusy(true);
+      try {
+        const { error } = await client.auth.updateUser({ password });
+        if (error) throw error;
+        await client.auth.signOut();
+        setMode("login");
+        showNotice("Password updated. Sign in with your new password.", "success");
+      } catch (e) { showNotice(errorText(e), "error"); }
+      finally { setBusy(false); }
+      return;
+    }
     if (mode === "signup" && nameInput.value.trim().length < 2) { setError(nameInput, "name-error", "Enter your name (at least 2 characters)."); valid = false; }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setError(emailInput, "email-error", "Enter a valid email address."); valid = false; }
     if (password.length < 8) { setError(passwordInput, "password-error", "Use a password with at least 8 characters."); valid = false; }
