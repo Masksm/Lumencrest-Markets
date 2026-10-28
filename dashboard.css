@@ -212,3 +212,9 @@ body.profile-drawer-open{overflow:hidden}
 
 .profile-menu-toggle-left{flex:0 0 42px;margin-right:-12px}
 @media(max-width:700px){.dashboard-nav{gap:12px}.profile-menu-toggle-left{margin-right:0}.dashboard-nav .brand{flex:1;min-width:0}.dashboard-nav .brand-name{white-space:nowrap}}
+
+/* Render the menu trigger as a profile glyph rather than a generic menu */
+.profile-menu-toggle{gap:2px}
+.profile-menu-toggle span:first-child{width:10px;height:10px;border:2px solid var(--text);border-radius:50%;background:transparent}
+.profile-menu-toggle span:nth-child(2){width:21px;height:11px;border:2px solid var(--text);border-bottom:0;border-radius:13px 13px 2px 2px;background:transparent}
+.profile-menu-toggle span:nth-child(3){display:none}
