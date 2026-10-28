@@ -248,3 +248,30 @@ body.profile-drawer-open{overflow:hidden}
  .site-header .dashboard-nav .dashboard-links{order:initial;width:auto;margin-left:auto;gap:16px}
  .site-header .dashboard-nav .dashboard-links a{padding:18px 0;font-size:12px}
 }
+
+/* Header layout: profile and cash account stay on the top row; workspace links sit beneath. */
+.site-header .dashboard-nav{display:flex;flex-direction:column;align-items:stretch;justify-content:center;gap:0;padding-top:8px;padding-bottom:8px}
+.site-header .dashboard-top-row{display:flex;align-items:center;gap:14px;min-height:54px;width:100%;min-width:0}
+.site-header .dashboard-top-row .brand{margin-right:auto;flex:0 1 auto;min-width:0}
+.site-header .dashboard-top-row .header-cash-account{display:flex;flex-direction:column;align-items:flex-end;gap:2px;margin-left:auto;white-space:nowrap}
+.site-header .dashboard-top-row .header-cash-account .header-cash-label{font-size:8px;letter-spacing:1px}
+.site-header .dashboard-top-row .header-cash-account strong{font-size:14px;line-height:1.2}
+.site-header .dashboard-top-row .header-cash-account small{font-size:8px}
+.site-header .dashboard-top-row .header-wallet-button{flex:0 0 auto}
+.site-header .dashboard-nav .dashboard-links{display:flex;order:initial;width:100%;margin:0;padding-top:2px;gap:18px;justify-content:space-between;overflow-x:auto}
+.site-header .dashboard-nav .dashboard-links a{display:inline-flex;align-items:center;white-space:nowrap;padding:12px 0;font-size:11px;flex:0 0 auto}
+@media(max-width:430px){
+ .site-header .dashboard-top-row{gap:9px}
+ .site-header .dashboard-top-row .brand-name{font-size:14px}
+ .site-header .dashboard-top-row .brand-name span{font-size:10px}
+ .site-header .dashboard-top-row .header-cash-account .header-cash-label{font-size:6px;letter-spacing:.6px}
+ .site-header .dashboard-top-row .header-cash-account strong{font-size:12px}
+ .site-header .dashboard-nav .dashboard-links{gap:15px;justify-content:flex-start}
+}
+@media(min-width:701px){
+ .site-header .dashboard-nav{gap:0}
+ .site-header .dashboard-top-row{min-height:58px}
+ .site-header .dashboard-top-row .header-cash-account{margin-left:auto}
+ .site-header .dashboard-nav .dashboard-links{justify-content:flex-start;gap:24px;padding-top:0}
+ .site-header .dashboard-nav .dashboard-links a{padding:13px 0;font-size:12px}
+}
