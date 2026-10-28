@@ -123,3 +123,22 @@
 .asset-switcher>small,.asset-switcher-status{margin:0;color:var(--muted);font-size:10px;line-height:1.5}
 .asset-switcher-status:empty{display:none}
 @media(max-width:420px){.asset-switcher{padding:12px}.asset-switcher-controls{flex-direction:column}.asset-switcher-controls button{min-height:38px}}
+
+/* Overview market activity and account watchlist */
+.workspace-overview-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:14px;margin:0 0 35px;align-items:start}
+.workspace-overview-grid .workspace-panel{padding:20px;min-width:0}
+.overview-subheading{align-items:center;margin-bottom:9px}
+.overview-subheading h2{font-size:21px}
+.overview-subheading .workspace-link{white-space:nowrap;font-size:10px}
+.overview-movers-list,.overview-watchlist-list{display:grid;gap:0}
+.overview-mover-row,.overview-watchlist-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);text-decoration:none;color:var(--text);min-width:0}
+.overview-mover-row:last-child,.overview-watchlist-row:last-child{border-bottom:0}
+.overview-mover-row:hover,.overview-watchlist-row:hover{color:var(--accent)}
+.overview-mover-identity,.overview-mover-values{display:grid;gap:4px;min-width:0}
+.overview-mover-identity strong,.overview-mover-values strong{font-size:11px;font-variant-numeric:tabular-nums}
+.overview-mover-identity small,.overview-mover-values small{font-size:9px;color:var(--muted)}
+.overview-mover-values{text-align:right}
+.overview-mover-values .crypto-change{font-weight:700}
+.overview-empty{font-size:11px;line-height:1.7;color:var(--muted);margin:8px 0}
+.overview-add-link{display:inline-block;margin-top:12px}
+@media(max-width:760px){.workspace-overview-grid{grid-template-columns:1fr}.workspace-overview-grid .workspace-panel{padding:16px}}
