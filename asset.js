@@ -27,6 +27,30 @@
   const money = n => new Intl.NumberFormat(undefined,{style:"currency",currency:"USD",maximumFractionDigits:n>=100?2:n>=1?3:5}).format(n);
   const pct = n => (n>0?"+":"")+Number(n).toFixed(2)+"%";
   const login = () => location.replace("auth.html");
+  const switcherForm = $("#asset-switcher-form");
+  if (switcherForm) {
+    const switcherInput = $("#asset-switcher-input");
+    if (asset) switcherInput.value = asset.symbol;
+    switcherForm.addEventListener("submit", event => {
+      event.preventDefault();
+      const symbol = (switcherInput.value || "").trim().toUpperCase().replace(/\s+/g, "");
+      const pair = symbol.split("/");
+      const supported = cryptoAssets.some(item => item.symbol === symbol)
+        || stockAssets.some(item => item.symbol === symbol)
+        || (/^[A-Z]{3}\/[A-Z]{3}$/.test(symbol)
+          && currencies.includes(pair[0])
+          && currencies.includes(pair[1])
+          && pair[0] !== pair[1]);
+      if (!supported) {
+        $("#asset-switcher-status").textContent = "Choose a supported asset from the suggestions.";
+        return;
+      }
+      location.href = "asset.html?symbol=" + encodeURIComponent(symbol);
+    });
+    switcherInput.addEventListener("input", () => {
+      $("#asset-switcher-status").textContent = "";
+    });
+  }
   const setTitle = (name,symbol) => {
     document.title = name + " (" + symbol + ") | Lumencrest Markets";
     $("#asset-title").replaceChildren(document.createTextNode(name+" "));
