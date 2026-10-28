@@ -142,3 +142,45 @@
 .overview-empty{font-size:11px;line-height:1.7;color:var(--muted);margin:8px 0}
 .overview-add-link{display:inline-block;margin-top:12px}
 @media(max-width:760px){.workspace-overview-grid{grid-template-columns:1fr}.workspace-overview-grid .workspace-panel{padding:16px}}
+
+/* Mobile-first unified asset workspace */
+.asset-terminal-topline{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:6px 0 14px}
+.asset-terminal-actions{display:flex;gap:16px}.asset-terminal-actions a{font-size:11px;color:var(--muted);text-decoration:none;display:flex;align-items:center;gap:5px}
+.asset-terminal-switcher{margin-bottom:14px;background:var(--surface-2)}
+.asset-terminal-switcher>label{letter-spacing:.09em;font-size:9px}
+.asset-terminal-heading{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,.7fr);gap:14px;align-items:stretch;margin:12px 0 14px}
+.asset-terminal-heading>div:first-child{padding:14px 0}.asset-terminal-heading h1{font-size:clamp(25px,4vw,39px);letter-spacing:-1px;margin:8px 0}.asset-terminal-heading p{font-size:12px;line-height:1.7;color:var(--muted)}
+.asset-terminal-quote,.asset-terminal-chart-panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px;min-width:0}
+.asset-terminal-quote .asset-current-price{font-size:clamp(26px,4vw,39px);font-weight:750;letter-spacing:-1px;margin:8px 0}
+.asset-terminal-quote .data-status{line-height:1.6;overflow-wrap:anywhere}
+.asset-terminal-chart-panel{background:#0b1425;color:#eef4ff;border-color:#24334b;margin-bottom:14px}
+.asset-chart-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.asset-chart-toolbar h2,.asset-market-info h2,.asset-market-actions h2{font-size:20px;margin:6px 0}
+.asset-timeframes{display:flex;gap:4px;background:#111e32;border-radius:7px;padding:4px}
+.asset-timeframes button{border:0;border-radius:5px;padding:8px 10px;background:transparent;color:#9fb1d0;font-size:11px;cursor:pointer}
+.asset-timeframes button.active{background:#263b5b;color:#fff}
+.asset-terminal-chart{position:relative;min-height:280px;height:clamp(280px,52vw,430px);background:#0b1425;overflow:hidden;border-radius:5px}
+.asset-terminal-chart .history-svg{display:block;width:100%;height:100%;min-height:280px}
+.asset-terminal-chart .chart-grid-line{stroke:#26354d;stroke-width:1}
+.asset-terminal-chart .candle-up{stroke:#2eae7d;fill:#2eae7d}
+.asset-terminal-chart .candle-down{stroke:#ed4b55;fill:#ed4b55}
+.asset-chart-current{position:absolute;right:8px;top:8px;background:#172944;color:#dce8fc;border:1px solid #334b6b;border-radius:5px;padding:5px 8px;font-size:11px;font-variant-numeric:tabular-nums}
+.asset-chart-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px;color:#a4b5d0;font-size:10px}
+.asset-chart-foot .data-status{margin:0;color:#a4b5d0}
+.asset-terminal-chart-panel .chart-disclaimer{color:#8296b5;font-size:10px;line-height:1.6;margin:12px 0 0}
+.asset-terminal-lower-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.85fr);gap:14px;margin-bottom:30px}
+.asset-terminal-lower-grid .workspace-panel{padding:18px;min-width:0}.asset-terminal-lower-grid .panel-intro{font-size:11px;line-height:1.8;overflow-wrap:anywhere}
+.asset-action-link{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--line);color:var(--text);text-decoration:none}.asset-action-link:last-child{border-bottom:0}
+.asset-action-link>span:first-child{font-size:20px;color:var(--accent);width:24px;text-align:center}.asset-action-link>span:nth-child(2){display:grid;gap:4px;flex:1}.asset-action-link strong{font-size:11px}.asset-action-link small{font-size:10px;color:var(--muted)}
+.asset-mobile-nav{display:none}
+@media(max-width:700px){
+ .site-header .dashboard-nav{min-height:56px}.site-header .brand-name{font-size:14px}.site-header .dashboard-links{display:none}.site-header .account-controls{margin-left:auto}
+ .workspace-main{padding-bottom:88px}
+ .asset-terminal-topline{margin-top:0}.asset-terminal-switcher{padding:12px}.asset-terminal-heading{grid-template-columns:1fr;gap:10px;margin-top:6px}
+ .asset-terminal-heading>div:first-child{padding:8px 0 0}.asset-terminal-heading h1{font-size:28px}.asset-terminal-heading p{font-size:11px;margin:5px 0}
+ .asset-terminal-quote{padding:14px}.asset-terminal-quote .asset-current-price{font-size:30px}.asset-terminal-chart-panel{padding:12px;margin-inline:-2px}.asset-terminal-chart{height:360px;min-height:280px}
+ .asset-chart-toolbar{align-items:flex-start}.asset-chart-toolbar h2{font-size:18px}.asset-timeframes button{padding:8px 9px}
+ .asset-terminal-lower-grid{grid-template-columns:1fr}.asset-terminal-lower-grid .workspace-panel{padding:15px}
+ .asset-mobile-nav{position:fixed;z-index:20;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(4,1fr);padding:9px 5px calc(9px + env(safe-area-inset-bottom));background:#0b1425;border-top:1px solid #26354d}
+ .asset-mobile-nav a{display:grid;justify-items:center;gap:4px;color:#9fb1d0;text-decoration:none;font-size:10px}.asset-mobile-nav a span{font-size:21px;line-height:1.2}.asset-mobile-nav a.active{color:#fff}
+}
