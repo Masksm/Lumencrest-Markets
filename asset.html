@@ -16,9 +16,12 @@
   <div class="account-controls"><button class="signout-button" id="signout-button" type="button">Sign out</button></div>
 </div></header>
 <main class="container workspace-main">
-  <p><a class="workspace-link" href="markets.html">← Back to markets</a></p>
-  <form class="asset-switcher" id="asset-switcher-form" role="search">
-    <label for="asset-switcher-input">Switch asset</label>
+  <div class="asset-terminal-topline">
+    <a class="workspace-link asset-back-link" href="markets.html">← Markets</a>
+    <div class="asset-terminal-actions"><a href="watchlist.html" aria-label="Watchlist"><span>☆</span> Watchlist</a><a href="portfolio.html" aria-label="Portfolio"><span>▤</span> Portfolio</a></div>
+  </div>
+  <form class="asset-switcher asset-terminal-switcher" id="asset-switcher-form" role="search">
+    <label for="asset-switcher-input">SELECT MARKET</label>
     <div class="asset-switcher-controls">
       <input id="asset-switcher-input" list="asset-switcher-options" name="symbol" placeholder="Search BTC, Apple, EUR/USD…" autocomplete="off" aria-describedby="asset-switcher-help" required>
       <datalist id="asset-switcher-options">
@@ -26,29 +29,28 @@
         <option value="AAPL" label="Apple"></option><option value="MSFT" label="Microsoft"></option><option value="NVDA" label="NVIDIA"></option><option value="AMZN" label="Amazon"></option><option value="SPX" label="S&P 500"></option>
         <option value="EUR/USD"></option><option value="GBP/USD"></option><option value="USD/JPY"></option><option value="USD/CAD"></option><option value="USD/CHF"></option><option value="AUD/USD"></option><option value="EUR/GBP"></option>
       </datalist>
-      <button class="outline-button" type="submit">Open asset</button>
+      <button class="outline-button" type="submit">Open market ↗</button>
     </div>
-    <small id="asset-switcher-help">Search supported crypto assets, selected equities, or currency reference pairs.</small>
+    <small id="asset-switcher-help">Search supported crypto assets, selected equities or currency reference pairs.</small>
     <p class="asset-switcher-status" id="asset-switcher-status" role="status"></p>
   </form>
-  <section class="workspace-welcome"><div><div class="eyebrow"><span class="eyebrow-dot"></span> ASSET RESEARCH</div><h1 id="asset-title">Loading <span>asset details.</span></h1><p id="asset-subtitle">Checking available market data and its source.</p></div></section>
-  <section class="workspace-notice"><span class="status-icon">i</span><div><strong>Know what this quote represents</strong><p id="asset-disclaimer">Crypto quotes are Binance spot-market data and may differ from other venues. Historical data is informational only. This page does not execute trades.</p></div></section>
-  <section class="workspace-lower-grid asset-detail-page-grid">
-    <article class="workspace-panel">
-      <div class="eyebrow">LATEST AVAILABLE QUOTE</div><div id="asset-price" class="asset-current-price">—</div><div id="asset-change" class="asset-current-change">Waiting for quote…</div>
-      <p id="asset-quote-status" class="data-status" role="status">Connecting to market data…</p>
-      <button class="outline-button asset-watchlist-button" id="asset-watchlist-button" type="button" disabled>Add to watchlist</button>
-      <p id="asset-watchlist-status" class="data-status" role="status"></p>
-    </article>
-    <article class="workspace-panel">
-      <div class="chart-heading"><strong>7-day price history</strong><small>4-hour candles · closing price</small></div>
-      <div id="asset-chart" class="asset-chart" role="region" aria-label="Asset chart and historical context"><p class="explorer-message">Loading historical prices…</p></div>
-      <div class="chart-axis"><span>Oldest</span><span>Latest</span></div>
-      <p id="asset-history-status" class="data-status" role="status">Loading history…</p>
-      <p class="chart-disclaimer">Historical prices do not predict future performance.</p>
-    </article>
+  <section class="asset-terminal-heading">
+    <div><div class="eyebrow"><span class="eyebrow-dot"></span> MARKET WORKSPACE</div><h1 id="asset-title">Loading <span>asset details.</span></h1><p id="asset-subtitle">Checking available market data and its source.</p></div>
+    <div class="asset-terminal-quote"><div class="eyebrow">LATEST AVAILABLE QUOTE</div><div id="asset-price" class="asset-current-price">—</div><div id="asset-change" class="asset-current-change">Waiting for quote…</div><p id="asset-quote-status" class="data-status" role="status">Connecting to market data…</p><button class="outline-button asset-watchlist-button" id="asset-watchlist-button" type="button" disabled>Add to watchlist</button><p id="asset-watchlist-status" class="data-status" role="status"></p></div>
   </section>
-  <section class="workspace-panel"><div class="eyebrow">DATA NOTES</div><h2>Source and limitations</h2><p class="panel-intro" id="asset-source-note">The available quote and history depend on the supported data source for this asset.</p><p class="panel-intro">Prices and historical data are supplied for market research and may differ from executable prices on trading venues.</p></section>
+  <section class="asset-terminal-chart-panel">
+    <div class="asset-chart-toolbar"><div><div class="eyebrow">PRICE CHART</div><h2>Market movement</h2></div><div class="asset-timeframes" role="group" aria-label="Chart interval">
+      <button type="button" data-interval="15m">15m</button><button type="button" data-interval="1h">1H</button><button type="button" data-interval="4h" class="active" aria-pressed="true">4H</button><button type="button" data-interval="1d">1D</button>
+    </div></div>
+    <div id="asset-chart" class="asset-chart asset-terminal-chart" role="region" aria-label="Asset chart and historical context"><p class="explorer-message">Loading historical prices…</p></div>
+    <div class="asset-chart-foot"><span id="asset-chart-range">Historical range</span><span id="asset-history-status" class="data-status" role="status">Loading history…</span></div>
+    <p class="chart-disclaimer">Historical prices do not predict future performance. Data availability and timing depend on the selected provider.</p>
+  </section>
+  <section class="asset-terminal-lower-grid">
+    <article class="workspace-panel asset-market-info"><div class="eyebrow">MARKET INFORMATION</div><h2>About this market</h2><p class="panel-intro" id="asset-source-note">The available quote and history depend on the supported data source for this asset.</p><p class="panel-intro" id="asset-disclaimer">Market information is for research purposes.</p></article>
+    <article class="workspace-panel asset-market-actions"><div class="eyebrow">QUICK ACCESS</div><h2>Your workspace</h2><a class="asset-action-link" href="watchlist.html"><span>☆</span><span><strong>Watchlist</strong><small>Review saved markets</small></span><span>↗</span></a><a class="asset-action-link" href="portfolio.html"><span>▤</span><span><strong>Portfolio</strong><small>Review tracked holdings</small></span><span>↗</span></a><a class="asset-action-link" href="research.html"><span>⌕</span><span><strong>Research</strong><small>Explore market coverage</small></span><span>↗</span></a></article>
+  </section>
+  <nav class="asset-mobile-nav" aria-label="Main navigation"><a href="markets.html" class="active"><span>⌁</span>Markets</a><a href="watchlist.html"><span>☆</span>Watchlist</a><a href="portfolio.html"><span>▤</span>Portfolio</a><a href="research.html"><span>⌕</span>Research</a></nav>
   <footer class="workspace-footer"><span>© <span id="year"></span> Lumencrest Markets</span><span>Market information for research purposes. Financial markets involve risk.</span></footer>
 </main>
 </body></html>
