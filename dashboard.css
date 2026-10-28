@@ -184,3 +184,26 @@
  .asset-mobile-nav{position:fixed;z-index:20;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(4,1fr);padding:9px 5px calc(9px + env(safe-area-inset-bottom));background:#0b1425;border-top:1px solid #26354d}
  .asset-mobile-nav a{display:grid;justify-items:center;gap:4px;color:#9fb1d0;text-decoration:none;font-size:10px}.asset-mobile-nav a span{font-size:21px;line-height:1.2}.asset-mobile-nav a.active{color:#fff}
 }
+
+/* Shared profile drawer inspired by compact trading-app account menus */
+.profile-account-controls{margin-left:auto}
+.profile-menu-toggle{width:42px;height:42px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2);display:grid;align-content:center;justify-items:center;gap:5px;cursor:pointer}
+.profile-menu-toggle span{display:block;width:19px;height:2px;border-radius:3px;background:var(--text)}
+.profile-menu-toggle:hover{border-color:var(--accent)}
+.profile-menu-backdrop{position:fixed;inset:0;z-index:80;background:rgba(2,7,17,.68);backdrop-filter:blur(3px)}
+.profile-drawer{position:fixed;z-index:81;top:0;right:0;bottom:0;width:min(410px,91vw);overflow-y:auto;background:var(--bg);border-left:1px solid var(--line);box-shadow:-20px 0 60px rgba(0,0,0,.25);padding:20px 16px calc(18px + env(safe-area-inset-bottom));transform:translateX(105%);visibility:hidden;transition:transform .24s ease,visibility .24s}
+.profile-drawer.open{transform:translateX(0);visibility:visible}
+.profile-drawer-head{display:flex;align-items:center;gap:12px;padding:6px 0 20px;border-bottom:1px solid var(--line);margin-bottom:18px}
+.profile-drawer-avatar{width:54px;height:54px;flex:0 0 54px;display:grid;place-items:center;background:var(--surface-2);border-radius:16px;color:var(--accent);font-size:30px}
+.profile-drawer-identity{display:grid;gap:5px;min-width:0;flex:1}.profile-drawer-identity strong{font-size:16px}.profile-drawer-identity span{font-size:11px;color:var(--muted);overflow-wrap:anywhere}
+.profile-drawer-close{width:36px;height:36px;border:0;border-radius:9px;background:var(--surface-2);color:var(--text);font-size:25px;cursor:pointer}
+.profile-menu-label{display:block;font-size:9px;font-weight:800;letter-spacing:.14em;color:var(--muted);padding:0 9px 8px}
+.profile-drawer-account,.profile-drawer-group{margin-bottom:18px}
+.profile-menu-item{display:flex;align-items:center;gap:12px;min-height:48px;padding:9px;border-radius:10px;text-decoration:none;color:var(--text);font-size:13px}
+.profile-menu-item:hover{background:var(--surface-2)}
+.profile-menu-icon{width:27px;flex:0 0 27px;text-align:center;font-size:20px;color:var(--accent)}
+.profile-menu-item>span:nth-child(2){display:grid;gap:4px;flex:1}.profile-menu-item small{font-size:10px;color:var(--muted)}.profile-menu-item b{font-size:23px;font-weight:400;color:var(--muted)}
+.profile-drawer-foot{border-top:1px solid var(--line);padding-top:16px;display:flex;align-items:center;justify-content:space-between;gap:12px}.profile-drawer-foot>span{font-size:9px;color:var(--muted)}.profile-drawer-foot .signout-button{padding:10px 14px}
+body.profile-drawer-open{overflow:hidden}
+@media(max-width:700px){.dashboard-nav{min-height:62px}.dashboard-nav .brand-name{font-size:14px}.profile-menu-toggle{width:42px;height:42px}.profile-drawer{padding-top:calc(16px + env(safe-area-inset-top))}}
+@media(prefers-reduced-motion:reduce){.profile-drawer{transition:none}}
