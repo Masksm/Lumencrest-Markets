@@ -32,17 +32,20 @@
   };
   const setMode = (next) => {
     mode = next; clearErrors(); clearNotice();
-    const signup = mode === "signup";
-    $("#auth-title").textContent = signup ? "Create your account" : "Welcome back";
-    $("#auth-subtitle").textContent = signup ? "Start building your view of global markets." : "Sign in to continue to your market workspace.";
-    tabs.forEach((t) => t.setAttribute("aria-selected", String(t.dataset.mode === mode)));
+    const signup = mode === "signup", recovery = mode === "recovery";
+    $("#auth-title").textContent = recovery ? "Set a new password" : signup ? "Create your account" : "Welcome back";
+    $("#auth-subtitle").textContent = recovery ? "Choose a new password for your account." : signup ? "Start building your view of global markets." : "Sign in to continue to your market workspace.";
+    tabs.forEach((t) => t.setAttribute("aria-selected", String(!recovery && t.dataset.mode === mode)));
+    $(".auth-tabs").hidden = recovery; googleButton.hidden = recovery; $(".auth-divider").hidden = recovery;
     nameField.hidden = !signup; termsField.hidden = !signup; $("#terms-error").hidden = !signup;
-    forgotLink.hidden = signup; passwordInput.autocomplete = signup ? "new-password" : "current-password";
-    passwordInput.placeholder = signup ? "At least 8 characters" : "Enter your password";
-    submitButton.innerHTML = signup ? 'Create account <span aria-hidden="true">↗</span>' : 'Sign in <span aria-hidden="true">↗</span>';
+    emailInput.closest(".form-field").hidden = recovery; emailInput.required = !recovery;
+    forgotLink.hidden = signup || recovery; switchText.hidden = recovery;
+    passwordInput.autocomplete = recovery || signup ? "new-password" : "current-password";
+    passwordInput.placeholder = recovery || signup ? "At least 8 characters" : "Enter your password";
+    submitButton.innerHTML = recovery ? 'Update password <span aria-hidden="true">↗</span>' : signup ? 'Create account <span aria-hidden="true">↗</span>' : 'Sign in <span aria-hidden="true">↗</span>';
     $("#google-label").textContent = signup ? "Sign up with Google" : "Continue with Google";
     switchText.innerHTML = signup ? 'Already have an account? <button type="button">Sign in</button>' : 'New to Lumencrest? <button type="button">Create an account</button>';
-    switchText.querySelector("button").addEventListener("click", () => setMode(signup ? "login" : "signup"));
+    if (!recovery) switchText.querySelector("button").addEventListener("click", () => setMode(signup ? "login" : "signup"));
   };
   tabs.forEach((t) => t.addEventListener("click", () => setMode(t.dataset.mode)));
   togglePassword.addEventListener("click", () => {
