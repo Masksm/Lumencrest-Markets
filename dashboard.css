@@ -218,3 +218,22 @@ body.profile-drawer-open{overflow:hidden}
 .profile-menu-toggle span:first-child{width:10px;height:10px;border:2px solid var(--text);border-radius:50%;background:transparent}
 .profile-menu-toggle span:nth-child(2){width:21px;height:11px;border:2px solid var(--text);border-bottom:0;border-radius:13px 13px 2px 2px;background:transparent}
 .profile-menu-toggle span:nth-child(3){display:none}
+
+/* Cash balance and wallet shortcut, shared across the authenticated workspace */
+.header-cash-account{display:flex;align-items:center;gap:5px;white-space:nowrap;padding:8px 11px;border:1px solid var(--line);border-radius:10px;background:var(--surface);}
+.header-cash-label{font-size:8px;font-weight:800;letter-spacing:.08em;color:var(--muted)}
+.header-cash-account strong{font-size:13px;font-variant-numeric:tabular-nums;color:var(--text)}
+.header-cash-account small{font-size:9px;color:var(--muted)}
+.header-wallet-button{width:40px;height:40px;flex:0 0 40px;display:grid;place-items:center;text-decoration:none;border-radius:11px;background:var(--accent);color:#fff;font-size:27px;font-weight:600;line-height:1}
+.header-wallet-button:hover{filter:brightness(1.08)}
+.cash-account-layout{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(250px,1fr);gap:18px;margin-bottom:28px}
+.cash-balance-card{padding:26px;background:linear-gradient(135deg,var(--surface-2),var(--surface));border:1px solid var(--line);border-radius:18px}
+.cash-balance-card .cash-balance-value{display:block;font-size:clamp(32px,6vw,48px);font-weight:800;letter-spacing:-.04em;margin:12px 0}
+.cash-balance-card p,.cash-feature-card p{font-size:12px;line-height:1.8;color:var(--muted)}
+.cash-feature-card{padding:22px;border:1px solid var(--line);border-radius:18px;background:var(--surface)}
+.cash-feature-card h2{font-size:17px;margin:8px 0}
+.cash-status-line{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted)}
+.cash-ledger-row{display:flex;justify-content:space-between;gap:16px;padding:15px 0;border-top:1px solid var(--line);font-size:12px}
+.cash-ledger-row span{color:var(--muted)}
+@media(max-width:1000px){.dashboard-nav{gap:12px}.header-cash-account{margin-left:auto;padding:7px 8px}.header-cash-label{display:none}.header-cash-account strong{font-size:12px}.header-wallet-button{width:36px;height:36px;flex-basis:36px}}
+@media(max-width:700px){.dashboard-nav{gap:8px;flex-wrap:wrap;padding-top:8px;padding-bottom:8px}.dashboard-nav .brand{flex:1;min-width:0}.dashboard-nav .brand-name{font-size:12px}.header-cash-account{order:3;margin-left:auto;min-height:34px}.header-wallet-button{order:4}.dashboard-links{order:5;width:100%;margin:0;justify-content:space-between;gap:10px;overflow-x:auto}.dashboard-links a{padding:10px 0;font-size:10px;white-space:nowrap}.cash-account-layout{grid-template-columns:1fr}.profile-menu-toggle-left{margin-right:0}}
