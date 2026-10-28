@@ -17,6 +17,20 @@
 </div></header>
 <main class="container workspace-main">
   <p><a class="workspace-link" href="markets.html">← Back to markets</a></p>
+  <form class="asset-switcher" id="asset-switcher-form" role="search">
+    <label for="asset-switcher-input">Switch asset</label>
+    <div class="asset-switcher-controls">
+      <input id="asset-switcher-input" list="asset-switcher-options" name="symbol" placeholder="Search BTC, Apple, EUR/USD…" autocomplete="off" aria-describedby="asset-switcher-help" required>
+      <datalist id="asset-switcher-options">
+        <option value="BTC" label="Bitcoin"></option><option value="ETH" label="Ethereum"></option><option value="SOL" label="Solana"></option><option value="BNB" label="BNB"></option><option value="XRP" label="XRP"></option><option value="ADA" label="Cardano"></option><option value="DOGE" label="Dogecoin"></option><option value="TRX" label="TRON"></option><option value="LINK" label="Chainlink"></option><option value="AVAX" label="Avalanche"></option>
+        <option value="AAPL" label="Apple"></option><option value="MSFT" label="Microsoft"></option><option value="NVDA" label="NVIDIA"></option><option value="AMZN" label="Amazon"></option><option value="SPX" label="S&P 500"></option>
+        <option value="EUR/USD"></option><option value="GBP/USD"></option><option value="USD/JPY"></option><option value="USD/CAD"></option><option value="USD/CHF"></option><option value="AUD/USD"></option><option value="EUR/GBP"></option>
+      </datalist>
+      <button class="outline-button" type="submit">Open asset</button>
+    </div>
+    <small id="asset-switcher-help">Search supported crypto assets, selected equities, or currency reference pairs.</small>
+    <p class="asset-switcher-status" id="asset-switcher-status" role="status"></p>
+  </form>
   <section class="workspace-welcome"><div><div class="eyebrow"><span class="eyebrow-dot"></span> ASSET RESEARCH</div><h1 id="asset-title">Loading <span>asset details.</span></h1><p id="asset-subtitle">Checking available market data and its source.</p></div></section>
   <section class="workspace-notice"><span class="status-icon">i</span><div><strong>Know what this quote represents</strong><p id="asset-disclaimer">Crypto quotes are Binance spot-market data and may differ from other venues. Historical data is informational only. This page does not execute trades.</p></div></section>
   <section class="workspace-lower-grid asset-detail-page-grid">
